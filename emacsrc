@@ -135,6 +135,11 @@
 		   (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
 		   (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))))
 
+;; ruby-mode indentation
+(add-hook 'ruby-mode-hook '(lambda ()
+							 (setq tab-width 2)
+							 (setq indent-tab-mode nil)))
+
 
 
 ;;; Sketchier things that are too specific or need to be cleaned up
