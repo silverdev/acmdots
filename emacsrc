@@ -1,7 +1,6 @@
-;;; Hackey shit warning on this one:
-;; set up the load path to ~/acmdots/emacs and all subdirs
+;; set up the load path to ~/emacsdir and all subdirs
 (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-		(let* ((my-lisp-dir "~/acmdots/emacs/")
+		(let* ((my-lisp-dir "~/.emacsdir/")
 			   (default-directory my-lisp-dir))
 		   (setq load-path (cons my-lisp-dir load-path))
 		   (normal-top-level-add-subdirs-to-load-path)))
@@ -71,7 +70,7 @@
 (if (fboundp 'load-theme)
 	; We can use emacs24 color themes
 	(progn
-	  (push "~/acmdots/emacs/themes/" custom-theme-load-path)
+	  (push "~/.emacsdir/themes/" custom-theme-load-path)
 	  (load-theme 'wombat-twilight t))
   ; We can't use modern themes, try to use color-theme package
   (progn
