@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+import os
+import os.path
+
+scriptdir = os.path.dirname(os.path.realpath(__file__))
+home = os.path.expanduser('~')
+
 links = {
 	'screenrc':   '.screenrc',
 	'ackrc':      '.ackrc',
@@ -57,3 +63,19 @@ links = {
 
 	'gdbinit': '.gdbinit',
 }
+
+i = 0; # Keep track of how many links we added
+for file in links:
+	# See if this file resides in a directory, and create it if needed.
+	path = os.path.dirname(links[file])
+	if path and not os.path.exists(os.path.join(home, path)):
+		os.makedirs(os.path.join(home, path))
+
+	src  = os.path.join(scriptdir, file)
+	dest = os.path.join(home, links[file])
+
+	if not os.path.exists(dest):
+		os.symlink(src, dest)
+		i += 1
+
+print '{:d} link{} created'.format(i, 's' if i != 1 else '')
