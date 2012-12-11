@@ -78,6 +78,12 @@ links = {
 	'gdbinit': '.gdbinit',
 }
 
+uname = os.uname()[0]
+if os.system('cc answerback.c -o answerback.' + uname) == 0:
+	links['answerback.' + uname] = 'bin/answerback.' + uname
+else:
+	print 'Could not compile answerback.'
+
 i = 0; # Keep track of how many links we added
 for file in links:
 	# See if this file resides in a directory, and create it if needed.
@@ -104,5 +110,7 @@ for file in links:
 	if not os.path.exists(dest):
 		os.symlink(src, dest)
 		i += 1
+	else:
+		print 'Could not link "{}" to "{}": File exists'.format(src, dest)
 
 print '{:d} link{} created'.format(i, 's' if i != 1 else '')
