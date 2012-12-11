@@ -1,10 +1,23 @@
 #! /usr/bin/env python
 
+import argparse
 import os
 import os.path
 
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser('~')
+
+parser = argparse.ArgumentParser(
+	formatter_class=argparse.RawDescriptionHelpFormatter,
+	description= \
+"""Installs symbolic links from dotfile repo into your home directory
+
+Destination directory is "{}".
+Source files are in "{}".""".format(home, scriptdir))
+parser.add_argument('-f', '--force', action='store_true',
+	help='force an overwrite existing files')
+args = parser.parse_args()
+force = args.force
 
 links = {
 	'screenrc':   '.screenrc',
