@@ -78,6 +78,8 @@ links = {
 	'gdbinit': '.gdbinit',
 }
 
+contained = os.path.commonprefix([scriptdir, home]) == home
+
 uname = os.uname()[0]
 if os.system('cc answerback.c -o answerback.' + uname) == 0:
 	links['answerback.' + uname] = 'bin/answerback.' + uname
@@ -106,6 +108,11 @@ for file in links:
 		shutil.rmtree(dest)
 	elif force:
 		os.remove(dest)
+
+	if contained:
+		os.chdir(home)
+		src  = os.path.relpath(src, os.path.dirname(dest))
+		dest = links[file]
 
 	if not os.path.exists(dest):
 		os.symlink(src, dest)
