@@ -3,6 +3,7 @@
 import argparse
 import os
 import os.path
+import shutil
 
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser('~')
@@ -86,6 +87,19 @@ for file in links:
 
 	src  = os.path.join(scriptdir, file)
 	dest = os.path.join(home, links[file])
+
+	# If a link already exists, see if it points to this file. If so, skip it.
+	# This prevents extra warnings caused by previous runs of install.py.
+	if not force and os.path.islink(dest):
+		dest_link = os.path.join(home, path, os.readlink(dest))
+		if os.path.abspath(dest_link) == src:
+			continue
+
+	# Remove the destination if it exists and we were told to force an overwrite
+	if force and os.path.isdir(dest) and not os.path.islink(dest):
+		shutil.rmtree(dest)
+	elif force:
+		os.remove(dest)
 
 	if not os.path.exists(dest):
 		os.symlink(src, dest)
