@@ -109,6 +109,7 @@ def uninstall(file):
 def uninstall_all():
 	uname = os.uname()[0]
 	links['answerback.' + uname] = 'bin/answerback.' + uname
+	links['gitprivate'] = '.gitprivate'
 
 	i = 0; # Keep track of how many links we remove
 	for file in links:
@@ -166,6 +167,21 @@ def install_all(force=False):
 		links['answerback.' + uname] = 'bin/answerback.' + uname
 	else:
 		print 'Could not compile answerback.'
+
+	# Create private git config and add it to links
+	if not os.path.exists(os.path.join(scriptdir, 'gitprivate')):
+		name = raw_input('Full name for Git config (enter to skip): ')
+		email = raw_input('Email address for Git config (enter to skip): ')
+		if name or email:
+			with open(os.path.join(scriptdir, 'gitprivate'), 'w') as config:
+				config.write('[user]\n')
+				if name:
+					config.write('\tname = ' + name + '\n')
+				if email:
+					config.write('\temail = ' + email + '\n')
+			links['gitprivate'] = '.gitprivate'
+	else:
+		links['gitprivate'] = '.gitprivate'
 
 	i = 0; # Keep track of how many links we added
 	for file in links:
