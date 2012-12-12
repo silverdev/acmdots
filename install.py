@@ -5,21 +5,6 @@ import os
 import os.path
 import shutil
 
-scriptdir = os.path.dirname(os.path.realpath(__file__))
-home = os.path.expanduser('~')
-
-parser = argparse.ArgumentParser(
-	formatter_class=argparse.RawDescriptionHelpFormatter,
-	description= \
-"""Installs symbolic links from dotfile repo into your home directory
-
-Destination directory is "{}".
-Source files are in "{}".""".format(home, scriptdir))
-parser.add_argument('-f', '--force', action='store_true',
-	help='force an overwrite existing files')
-args = parser.parse_args()
-force = args.force
-
 links = {
 	'screenrc':   '.screenrc',
 	'ackrc':      '.ackrc',
@@ -78,6 +63,8 @@ links = {
 	'gdbinit': '.gdbinit',
 }
 
+scriptdir = os.path.dirname(os.path.realpath(__file__))
+home = os.path.expanduser('~')
 contained = os.path.commonprefix([scriptdir, home]) == home
 
 def read_link_abs(path):
@@ -134,15 +121,33 @@ def install(file, force=False):
 	os.symlink(src, dest)
 	return True
 
-uname = os.uname()[0]
-if os.system('cc answerback.c -o answerback.' + uname) == 0:
-	links['answerback.' + uname] = 'bin/answerback.' + uname
-else:
-	print 'Could not compile answerback.'
+def install_all(force=False):
+	uname = os.uname()[0]
+	if os.system('cc answerback.c -o answerback.' + uname) == 0:
+		links['answerback.' + uname] = 'bin/answerback.' + uname
+	else:
+		print 'Could not compile answerback.'
 
-i = 0; # Keep track of how many links we added
-for file in links:
-	if install(file, force):
-		i += 1
+	i = 0; # Keep track of how many links we added
+	for file in links:
+		if install(file, force):
+			i += 1
 
-print '{:d} link{} created'.format(i, 's' if i != 1 else '')
+	print '{:d} link{} created'.format(i, 's' if i != 1 else '')
+
+def main():
+	parser = argparse.ArgumentParser(
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+		description= \
+"""Installs symbolic links from dotfile repo into your home directory
+
+Destination directory is "{}".
+Source files are in "{}".""".format(home, scriptdir))
+	parser.add_argument('-f', '--force', action='store_true',
+		help='force to overwrite existing files')
+	args = parser.parse_args()
+
+	install_all(args.force)
+
+if __name__ == '__main__':
+	main()
