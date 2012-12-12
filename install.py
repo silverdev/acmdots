@@ -179,11 +179,16 @@ def main():
 
 Destination directory is "{}".
 Source files are in "{}".""".format(home, scriptdir))
+	parser.add_argument('-u', '--uninstall', action='store_true',
+		help='unlink dotfiles from your home directory')
 	parser.add_argument('-f', '--force', action='store_true',
 		help='force to overwrite existing files')
 	args = parser.parse_args()
 
-	install_all(args.force)
+	if args.uninstall:
+		uninstall_all()
+	else:
+		install_all(args.force)
 
 if __name__ == '__main__':
 	main()
