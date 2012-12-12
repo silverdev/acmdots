@@ -80,6 +80,20 @@ links = {
 
 contained = os.path.commonprefix([scriptdir, home]) == home
 
+def read_link_abs(path):
+	"""Read the absolute path to which the symbolic link points.
+
+	Args:
+		path - path to the link
+	Returns:
+		the target absolute path or the empty string if path isn't a link
+	"""
+	if not os.path.islink(path):
+		return ''
+
+	target = os.path.join(os.path.dirname(path), os.readlink(path))
+	return os.path.abspath(target)
+
 def install(file, force=False):
 	"""Install a file.
 
@@ -99,10 +113,8 @@ def install(file, force=False):
 
 	# If a link already exists, see if it points to this file. If so, skip it.
 	# This prevents extra warnings caused by previous runs of install.py.
-	if not force and os.path.islink(dest):
-		dest_link = os.path.join(home, path, os.readlink(dest))
-		if os.path.abspath(dest_link) == src:
-			return False
+	if not force and read_link_abs(dest) == src:
+		return False
 
 	# Remove the destination if it exists and we were told to force an overwrite
 	if force and os.path.isdir(dest) and not os.path.islink(dest):
