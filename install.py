@@ -103,36 +103,36 @@ def install(file, force=False):
 	Returns:
 		True if the file was installed, False otherwise
 	"""
-	# See if this file resides in a directory, and create it if needed.
-	path = os.path.dirname(links[file])
-	if path and not os.path.exists(os.path.join(home, path)):
-		os.makedirs(os.path.join(home, path))
-
 	src  = os.path.join(scriptdir, file)
 	dest = os.path.join(home, links[file])
+	path = os.path.dirname(dest)
 
-	# If a link already exists, see if it points to this file. If so, skip it.
-	# This prevents extra warnings caused by previous runs of install.py.
-	if not force and read_link_abs(dest) == src:
-		return False
+	# If needed, create the directory this file resides in
+	if not os.path.exists(path):
+		os.makedirs(path)
 
-	# Remove the destination if it exists and we were told to force an overwrite
-	if force and os.path.isdir(dest) and not os.path.islink(dest):
-		shutil.rmtree(dest)
-	elif force:
-		os.remove(dest)
+	if os.path.exists(dest):
+		if force:
+			# Remove the destination if it exists
+			if os.path.isdir(dest) and not os.path.islink(dest):
+				shutil.rmtree(dest)
+			else:
+				os.remove(dest)
+		else:
+			# If a link already exists, see if it points to this file
+			# to prevent extra warnings caused by previous runs
+			if read_link_abs(dest) != src:
+				print 'Could not link "{}" to "{}": File exists'.format(src, dest)
+			return False
 
+	# Use relative links if the dotfiles are contained in home
 	if contained:
 		os.chdir(home)
-		src  = os.path.relpath(src, os.path.dirname(dest))
+		src  = os.path.relpath(src, path)
 		dest = links[file]
 
-	if not os.path.exists(dest):
-		os.symlink(src, dest)
-		return True
-	else:
-		print 'Could not link "{}" to "{}": File exists'.format(src, dest)
-		return False
+	os.symlink(src, dest)
+	return True
 
 uname = os.uname()[0]
 if os.system('cc answerback.c -o answerback.' + uname) == 0:
