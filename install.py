@@ -80,14 +80,15 @@ links = {
 
 contained = os.path.commonprefix([scriptdir, home]) == home
 
-uname = os.uname()[0]
-if os.system('cc answerback.c -o answerback.' + uname) == 0:
-	links['answerback.' + uname] = 'bin/answerback.' + uname
-else:
-	print 'Could not compile answerback.'
+def install(file, force=False):
+	"""Install a file.
 
-i = 0; # Keep track of how many links we added
-for file in links:
+	Args:
+		file - the file to install
+		force - whether to overwrite existing files
+	Returns:
+		True if the file was installed, False otherwise
+	"""
 	# See if this file resides in a directory, and create it if needed.
 	path = os.path.dirname(links[file])
 	if path and not os.path.exists(os.path.join(home, path)):
@@ -101,7 +102,7 @@ for file in links:
 	if not force and os.path.islink(dest):
 		dest_link = os.path.join(home, path, os.readlink(dest))
 		if os.path.abspath(dest_link) == src:
-			continue
+			return False
 
 	# Remove the destination if it exists and we were told to force an overwrite
 	if force and os.path.isdir(dest) and not os.path.islink(dest):
@@ -116,8 +117,20 @@ for file in links:
 
 	if not os.path.exists(dest):
 		os.symlink(src, dest)
-		i += 1
+		return True
 	else:
 		print 'Could not link "{}" to "{}": File exists'.format(src, dest)
+		return False
+
+uname = os.uname()[0]
+if os.system('cc answerback.c -o answerback.' + uname) == 0:
+	links['answerback.' + uname] = 'bin/answerback.' + uname
+else:
+	print 'Could not compile answerback.'
+
+i = 0; # Keep track of how many links we added
+for file in links:
+	if install(file, force):
+		i += 1
 
 print '{:d} link{} created'.format(i, 's' if i != 1 else '')
