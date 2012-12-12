@@ -115,7 +115,7 @@ def uninstall_all():
 		if uninstall(file):
 			i += 1
 
-	print '{:d} link{} removed'.format(i, 's' if i != 1 else '')
+	print '{0:d} link{1} removed'.format(i, 's' if i != 1 else '')
 
 def install(file, force=False):
 	"""Install a file.
@@ -145,7 +145,7 @@ def install(file, force=False):
 			# If a link already exists, see if it points to this file
 			# to prevent extra warnings caused by previous runs
 			if read_link_abs(dest) != src:
-				print 'Could not link "{}" to "{}": File exists'.format(src, dest)
+				print 'Could not link "{0}" to "{1}": File exists'.format(src, dest)
 			return False
 
 	# Use relative links if the dotfiles are contained in home
@@ -162,7 +162,7 @@ def install_all(force=False):
 	uname = os.uname()[0]
 	answerback_src = os.path.join(scriptdir, 'answerback.c')
 	answerback_bin = os.path.join(scriptdir, 'answerback.' + uname)
-	if os.system('cc {} -o {}'.format(answerback_src, answerback_bin)) == 0:
+	if os.system('cc {0} -o {1}'.format(answerback_src, answerback_bin)) == 0:
 		links['answerback.' + uname] = 'bin/answerback.' + uname
 	else:
 		print 'Could not compile answerback.'
@@ -172,7 +172,7 @@ def install_all(force=False):
 		if install(file, force):
 			i += 1
 
-	print '{:d} link{} created'.format(i, 's' if i != 1 else '')
+	print '{0:d} link{1} created'.format(i, 's' if i != 1 else '')
 
 def main():
 	class RawHelpFormatter(optparse.IndentedHelpFormatter):
@@ -186,8 +186,8 @@ def main():
 		description= \
 """Installs symbolic links from dotfile repo into your home directory
 
-Destination directory is "{}".
-Source files are in "{}".""".format(home, scriptdir))
+Destination directory is "{0}".
+Source files are in "{1}".""".format(home, scriptdir))
 	parser.add_option('-u', '--uninstall', action='store_true',
 		help='unlink dotfiles from your home directory')
 	parser.add_option('-f', '--force', action='store_true',
