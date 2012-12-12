@@ -81,6 +81,42 @@ def read_link_abs(path):
 	target = os.path.join(os.path.dirname(path), os.readlink(path))
 	return os.path.abspath(target)
 
+def uninstall(file):
+	"""Uninstall a file.
+
+	Args:
+		file - the file to uninstall
+	Returns:
+		True if the file was uninstalled, False otherwise
+	"""
+	src  = os.path.join(scriptdir, file)
+	dest = os.path.join(home, links[file])
+
+	# Only remove if it's a link to a dotfile in the repo
+	if read_link_abs(dest) != src:
+		return False
+
+	os.remove(dest)
+
+	# Remove empty directories that contained the link
+	dir = os.path.dirname(dest)
+	while dir and not os.listdir(dir):
+		os.rmdir(dir)
+		dir = os.path.dirname(dir)
+
+	return True
+
+def uninstall_all():
+	uname = os.uname()[0]
+	links['answerback.' + uname] = 'bin/answerback.' + uname
+
+	i = 0; # Keep track of how many links we remove
+	for file in links:
+		if uninstall(file):
+			i += 1
+
+	print '{:d} link{} removed'.format(i, 's' if i != 1 else '')
+
 def install(file, force=False):
 	"""Install a file.
 
