@@ -158,8 +158,11 @@ def install(file, force=False):
 	return True
 
 def install_all(force=False):
+	# Compile answerback and add it to links
 	uname = os.uname()[0]
-	if os.system('cc answerback.c -o answerback.' + uname) == 0:
+	answerback_src = os.path.join(scriptdir, 'answerback.c')
+	answerback_bin = os.path.join(scriptdir, 'answerback.' + uname)
+	if os.system('cc {} -o {}'.format(answerback_src, answerback_bin)) == 0:
 		links['answerback.' + uname] = 'bin/answerback.' + uname
 	else:
 		print 'Could not compile answerback.'
