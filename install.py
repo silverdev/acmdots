@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-import argparse
 import os
 import os.path
+import optparse
 import shutil
 
 links = {
@@ -175,18 +175,24 @@ def install_all(force=False):
 	print '{:d} link{} created'.format(i, 's' if i != 1 else '')
 
 def main():
-	parser = argparse.ArgumentParser(
-		formatter_class=argparse.RawDescriptionHelpFormatter,
+	class RawHelpFormatter(optparse.IndentedHelpFormatter):
+		def format_description(self, description):
+			return description + '\n'
+
+	# Parse arguments
+	parser = optparse.OptionParser(
+		usage='usage: %prog [-h] [-u] [-f]',
+		formatter=RawHelpFormatter(),
 		description= \
 """Installs symbolic links from dotfile repo into your home directory
 
 Destination directory is "{}".
 Source files are in "{}".""".format(home, scriptdir))
-	parser.add_argument('-u', '--uninstall', action='store_true',
+	parser.add_option('-u', '--uninstall', action='store_true',
 		help='unlink dotfiles from your home directory')
-	parser.add_argument('-f', '--force', action='store_true',
+	parser.add_option('-f', '--force', action='store_true',
 		help='force to overwrite existing files')
-	args = parser.parse_args()
+	args, _ = parser.parse_args()
 
 	if args.uninstall:
 		uninstall_all()
