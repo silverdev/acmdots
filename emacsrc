@@ -30,6 +30,7 @@
 (visual-line-mode 1)
 (setq column-number-mode t)
 
+
 ;; backup files should be in ~/.saves
 (setq backup-by-copying t
 	  backup-directory-alist '(("." . "~/.saves"))
@@ -224,7 +225,7 @@
   (require 'flymake-python-pyflakes)
   (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
   (setq flymake-python-pyflakes-executable "flake8")
-
+  (setq flymake-python-pyflakes-extra-arguments '("--ignore=E122,E241,W293,W291,W391"))
 
 ;; speed up fly spell
    (require 'flyspell-lazy)
@@ -280,9 +281,75 @@
       (append '(("\\.ml[ily]?$" . tuareg-mode)
                 ("\\.topml$" . tuareg-mode))
               auto-mode-alist))
+;; auto compleat
+(defun ac-ocaml-candidates (prefix)
+  "Candidates for OCaml auto-completion"
+  (let ((candidates)
+	(module-name 
+	  (when (string-match "\\([A-Za-z_][A-Za-z0-9_']*\\)[.]" prefix)
+	    (match-string 1 prefix))))
+    (if module-name
+        (iter '(lambda (sym) (push (concat module-name "." sym) candidates))
+              (ocaml-module-symbols (assoc module-name (ocaml-module-alist))))
+      (iter
+       '(lambda (mod)
+	  (iter '(lambda (sym) (push sym candidates))
+		(ocaml-module-symbols mod)))
+       (ocaml-visible-modules))
+      (iter '(lambda (mod) (push (car mod) candidates)) (ocaml-module-alist)))
+    candidates))
+(require 'auto-complete-config)
+(auto-complete-mode)        
+(ac-define-source ocaml
+  '((available . (require 'caml-help nil t))
+    (candidates . (ac-ocaml-candidates ac-prefix))
+    (prefix . "\\(?:[^A-Za-z0-9_.']\\|\\`\\)\\(\\(?:[A-Za-z_][A-Za-z0-9_']*[.]\\)?[A-Za-z0-9_']*\\)")
+    (symbol . "s")))
 
 ;; load desktop save files
-   (desktop-save-mode 1)
+;;   (desktop-save-mode 1)
+
+(global-set-key (kbd "C-;") 'iedit-mode)
 
 
+(eval-after-load "flyspell"  '(define-key flyspell-mode-map (kbd "C-;") nil) )
 
+(require 'ac-math)
+(desire 'ac-python "ac-python.el"
+		'(require 'ac-python))
+
+(show-paren-mode 1)
+(message "globle show paren %s" show-paren-mode)
+(add-to-list 'ac-modes 'python-mode)
+(add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
+
+(defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
+  (setq ac-sources
+     (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
+               ac-sources)))
+
+(add-hook 'latex-mode-hook 'ac-latex-mode-setup)
+;; for latex compleations 
+(ac-flyspell-workaround)
+
+;;(defun py-load-pymacs-p  nil)
+;;(require 'pymacs)
+;;(pymacs-load "ropemacs" "rope-")
+
+;; setup ipython mode
+(setq
+ python-shell-interpreter "ipython"
+ python-shell-interpreter-args "--pylab"
+ python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+ python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+ python-shell-completion-setup-code
+   "from IPython.core.completerlib import module_completion"
+ python-shell-completion-module-string-code
+   "';'.join(module_completion('''%s'''))\n"
+ python-shell-completion-string-code
+   "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+(global-auto-complete-mode 1)
+
+(winner-mode 1)
+(set-face-attribute 'default nil :height 120)
