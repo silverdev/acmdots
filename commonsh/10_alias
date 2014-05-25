@@ -21,7 +21,7 @@ done
 
 # gimmie an editor, make it emacs or a nice vi clone
 # but you can't find a vi clone keep trying!!
-for EDITOR in vimx vim elvis vile nvi vi emacs nano peco; do
+for EDITOR in emacs vimx vim elvis vile nvi vi nano peco; do
 	command -v $EDITOR >/dev/null 2>&1 && break
 done
 export EDITOR
